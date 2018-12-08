@@ -7,18 +7,18 @@ const url = require('url');
 const endpoint = config.endpoint;
 const masterKey = config.primaryKey;
 
-const HttpStatusCodes = { NOTFOUND: 404 };
+const HttpStatusCodes = {NOTFOUND: 404};
 
 const databaseId = config.database.id;
 const containerId = config.container.id;
 
-const client = new CosmosClient({ endpoint: endpoint, auth: { masterKey: masterKey } });
+const client = new CosmosClient({endpoint: endpoint, auth: {masterKey: masterKey}});
 
 /**
  * Create the database if it does not exist
  */
 async function createDatabase() {
-    const { database } = await client.databases.createIfNotExists({ id: databaseId });
+    const {database} = await client.databases.createIfNotExists({id: databaseId});
     console.log(`Created database:\n${database.id}\n`);
 }
 
@@ -26,7 +26,7 @@ async function createDatabase() {
  * Read the database definition
  */
 async function readDatabase() {
-    const { body: databaseDefinition } = await client.database(databaseId).read();
+    const {body: databaseDefinition} = await client.database(databaseId).read();
     console.log(`Reading database:\n${databaseDefinition.id}\n`);
 }
 
@@ -34,7 +34,7 @@ async function readDatabase() {
  * Create the container if it does not exist
  */
 async function createContainer() {
-    const { container } = await client.database(databaseId).containers.createIfNotExists({ id: containerId });
+    const {container} = await client.database(databaseId).containers.createIfNotExists({id: containerId});
     console.log(`Created container:\n${config.container.id}\n`);
 }
 
@@ -42,7 +42,7 @@ async function createContainer() {
  * Read the container definition
  */
 async function readContainer() {
-    const { body: containerDefinition } = await client.database(databaseId).container(containerId).read();
+    const {body: containerDefinition} = await client.database(databaseId).container(containerId).read();
     console.log(`Reading container:\n${containerDefinition.id}\n`);
 }
 
@@ -52,13 +52,12 @@ async function readContainer() {
 async function createFamilyItem(itemBody) {
     try {
         // read the item to see if it exists
-        const { item } = await client.database(databaseId).container(containerId).item(itemBody.id).read();
+        const {item} = await client.database(databaseId).container(containerId).item(itemBody.id).read();
         console.log(`Item with family id ${itemBody.id} already exists\n`);
-    }
-    catch (error) {
+    } catch (error) {
         // create the family item if it does not exist
         if (error.code === HttpStatusCodes.NOTFOUND) {
-            const { item } = await client.database(databaseId).container(containerId).items.create(itemBody);
+            const {item} = await client.database(databaseId).container(containerId).items.create(itemBody);
             console.log(`Created family item with id:\n${itemBody.id}\n`);
         } else {
             throw error;
@@ -67,27 +66,31 @@ async function createFamilyItem(itemBody) {
 };
 
 /**
- * Query the container using SQL
+ * Query the container users container using SQL
  */
-async function queryContainer() {
-    console.log(`Querying container:\n${config.container.id}`);
+const users_query = async function queryUsers(userIds) {
+    let final_result = "No Results";
+    for (let userId of userIds) {
+        console.log(`Querying user: ${userId} of container container:\n${config.container.id}`);
 
-    // query to return all children in a family
-    const querySpec = {
-        query: "SELECT VALUE r.children FROM root r WHERE r.lastName = @lastName",
-        parameters: [
-            {
-                name: "@lastName",
-                value: "Andersen"
-            }
-        ]
-    };
+        const querySpec = {
+            query: "SELECT VALUE r FROM root r WHERE r.user_id = @userId",
+            parameters: [
+                {
+                    name: "@userId",
+                    value: userId
+                }
+            ]
+        };
 
-    const { result: results } = await client.database(databaseId).container(containerId).items.query(querySpec).toArray();
-    for (var queryResult of results) {
-        let resultString = JSON.stringify(queryResult);
-        console.log(`\tQuery returned ${resultString}\n`);
-        return resultString;
+        const {result: results} = await client.database(databaseId).container(containerId).items.query(querySpec).toArray();
+        for (var queryResult of results) {
+            let resultString = JSON.stringify(queryResult);
+            console.log(`\tQuery returned ${resultString}\n`);
+            final_result += resultString;
+            //return resultString;
+        }
+        return final_result
     }
 };
 
@@ -98,7 +101,7 @@ async function replaceFamilyItem(itemBody) {
     console.log(`Replacing item:\n${itemBody.id}\n`);
     // Change property 'grade'
     itemBody.children[0].grade = 6;
-    const { item } = await client.database(databaseId).container(containerId).item(itemBody.id).replace(itemBody);
+    const {item} = await client.database(databaseId).container(containerId).item(itemBody.id).replace(itemBody);
 };
 
 /**
@@ -129,26 +132,23 @@ function exit(message) {
 }
 
 
-const ini = function init(){
-    createDatabase()
-        .then(() => readDatabase())
-        .then(() => createContainer())
-        //.then(() => readContainer())
-        .then(() => createFamilyItem(config.items.Andersen))
-        .then(() => createFamilyItem(config.items.Wakefield))
-        //.then(() => queryContainer())
-        //.then(() => replaceFamilyItem(config.items.Andersen))
-        //.then(() => queryContainer())
-        //.then(() => deleteFamilyItem(config.items.Andersen))
-        //.then(() => cleanup())
-        //.then(() => { exit(`Completed successfully`); })
-        .catch((error) => { exit(`Completed with error ${JSON.stringify(error)}`) });
+const ini = function init() {
+    // createDatabase()
+    //     .then(() => readDatabase())
+    //     .then(() => createContainer())
+    //     //.then(() => readContainer())
+    //     .then(() => createFamilyItem(config.items.Andersen))
+    //     .then(() => createFamilyItem(config.items.Wakefield))
+    //.then(() => queryContainer())
+    //.then(() => replaceFamilyItem(config.items.Andersen))
+    //.then(() => queryContainer())
+    //.then(() => deleteFamilyItem(config.items.Andersen))
+    //.then(() => cleanup())
+    //.then(() => { exit(`Completed successfully`); })
+    //.catch((error) => { exit(`Completed with error ${JSON.stringify(error)}`) });
 }
 
-function getFamily(){
-    return queryContainer();
-}
-
-module.exports={
-    init: ini
+module.exports = {
+    init: ini,
+    queryUsers: users_query
 }

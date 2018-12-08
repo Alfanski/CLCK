@@ -16,7 +16,6 @@ const getRec = function getRecommended(userId){
     }
     return req(options, (err, res, body) => {
         if (!err && res.statusCode == 200) {
-            console.log("BODY "+body+ " RES" +JSON.stringify(res));
             return body;
         } else {
             console.log(res.statusCode, JSON.stringify(res));
