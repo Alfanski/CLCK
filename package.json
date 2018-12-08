@@ -1,10 +1,27 @@
 {
-  "name": "azure-cosmosdb-sql-api-nodejs-getting-started",
+  "name": "CLCKWebApp",
   "version": "0.0.0",
-  "description": "A short sample app to demonstrate how to get started with Azure Cosmos DB's SQL API",
-  "main": "app.js",
+  "description": "Epic app",
+  "main": "server.js",
   "dependencies": {
     "@azure/cosmos": "^2.1.1",
-    "express.js": "^1.0.0"
+    "babel-register": "^6.26.0",
+    "express.js": "^1.0.0",
+    "http": "0.0.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.0",
+    "@types/babel-core": "^6.25.5",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.4",
+    "babel-preset-env": "^1.7.0",
+    "webpack": "^4.27.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "scripts": {
+    "build": "webpack --mode development",
+    "start": "node ./dist/server.js"
   }
 }

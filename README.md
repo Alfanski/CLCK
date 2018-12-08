@@ -27,7 +27,7 @@ Azure Cosmos DB is a globally distributed multi-model database. One of the suppo
 
 5. Run `npm install` in a terminal to install required npm modules
  
-6. Run `node app.js` in a terminal to start your start your node application.
+6. Run `node database.js` in a terminal to start your start your node application.
 
 ## About the code
 The code included in this sample is intended to get you quickly started with a Node.js console application that connects to Azure Cosmos DB with the SQL API.

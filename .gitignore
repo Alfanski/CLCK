@@ -1,5 +1,4 @@
-node_modules
-build
+node_modulesbuild
 npm-debug.log
 .env
 .DS_Store
